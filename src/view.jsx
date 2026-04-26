@@ -4,103 +4,113 @@ export default function WeatherView({
   favorites, showForm, setShowForm, handleFind, handleAddFavorite,
 }) {
   return (
-    <div className="container">
-      {!isAuthenticated && (
-        <button id="registerBtn" onClick={() => setShowForm(!showForm)}>Register</button>
-      )}
+    <div className="page">
+      <header className="topbar">
+        <span className="topbar-title">Počasí</span>
+        <div className="topbar-auth">
+          {isAuthenticated && user && <span className="user-greeting">Hello, {user.name}</span>}
+          {!isAuthenticated && <button className="btn btn-ghost" onClick={() => setShowForm(!showForm)}>Register</button>}
+          {!isAuthenticated && <button className="btn btn-primary" onClick={onLogin}>Login</button>}
+          {isAuthenticated && <button className="btn btn-ghost" onClick={onLogout}>Logout</button>}
+        </div>
+      </header>
 
       {showForm && (
-        <div id="registrationForm">
-          <form id="paymentForm" onSubmit={e => e.preventDefault()}>
-            <label htmlFor="email">Email:</label><br />
-            <input type="email" id="email" name="email" required /><br /><br />
-            <label htmlFor="cardNumber">Card Number:</label><br />
-            <input type="text" id="cardNumber" name="cardNumber" required /><br /><br />
-            <label htmlFor="expiry">Expiry Date:</label><br />
-            <input type="text" id="expiry" name="expiry" placeholder="MM/YY" required /><br /><br />
-            <label htmlFor="cvs">CVS:</label><br />
-            <input type="text" id="cvs" name="cvs" required /><br /><br />
-            <button type="submit">Finish Payment</button>
-          </form>
-          <button onClick={() => setShowForm(false)}>Cancel</button>
+        <div className="modal-overlay">
+          <div className="modal">
+            <h2>Register</h2>
+            <form className="form" onSubmit={e => e.preventDefault()}>
+              <label htmlFor="email">Email</label>
+              <input type="email" id="email" name="email" required />
+              <label htmlFor="cardNumber">Card Number</label>
+              <input type="text" id="cardNumber" name="cardNumber" required />
+              <label htmlFor="expiry">Expiry Date</label>
+              <input type="text" id="expiry" name="expiry" placeholder="MM/YY" required />
+              <label htmlFor="cvs">CVV</label>
+              <input type="text" id="cvs" name="cvs" required />
+              <div className="form-actions">
+                <button type="submit" className="btn btn-primary">Finish Payment</button>
+                <button type="button" className="btn btn-ghost" onClick={() => setShowForm(false)}>Cancel</button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 
-      {!isAuthenticated && (
-        <button id="login" onClick={onLogin}>Login</button>
-      )}
-      {isAuthenticated && (
-        <button id="logout" onClick={onLogout}>Logout</button>
-      )}
-      {isAuthenticated && user && <div id="user">Hello, {user.name}</div>}
+      <main className="main">
+        <div className="card search-card">
+          <div className="search-row">
+            <input
+              className="search-input"
+              type="text"
+              id="location"
+              name="location"
+              placeholder="Enter city..."
+              value={location}
+              onChange={e => setLocation(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleFind()}
+            />
+            <button className="btn btn-primary" id="findButton" onClick={handleFind}>Najdi</button>
+          </div>
 
-      <h1>Počasí</h1>
-      <label htmlFor="location">Lokace:</label>
-      <input
-        type="text"
-        id="location"
-        name="location"
-        value={location}
-        onChange={e => setLocation(e.target.value)}
-      /><br /><br />
-      <button type="button" id="findButton" onClick={handleFind}>Najdi</button>
-
-      {isAuthenticated && (
-        <div id="favs">
-          <select id="dropdown" onChange={e => setLocation(e.target.value)} value="">
-            <option value="">Vyber z oblíbených</option>
-            {favorites.map(f => <option key={f} value={f}>{f}</option>)}
-          </select>
+          {isAuthenticated && (
+            <div className="favs-row">
+              <select className="select" id="dropdown" onChange={e => setLocation(e.target.value)} value="">
+                <option value="">Vyber z oblíbených...</option>
+                {favorites.map(f => <option key={f} value={f}>{f}</option>)}
+              </select>
+              <button className="btn btn-outline" id="addFavorite" onClick={handleAddFavorite}>+ Přidat</button>
+            </div>
+          )}
         </div>
-      )}
 
-      {isAuthenticated && (
-        <button type="button" id="addFavorite" onClick={handleAddFavorite}>
-          Přidat do oblíbených
-        </button>
-      )}
-
-      <div id="output1">{output1}</div>
-      <div id="output2"></div>
-
-      <div id="imgContainer">
-        {weatherIcon && (
-          <img src={`https://openweathermap.org/img/wn/${weatherIcon}@2x.png`} alt="weather icon" />
+        {(weatherIcon || output1) && (
+          <div className="card weather-card">
+            {weatherIcon && (
+              <img
+                className="weather-icon"
+                src={`https://openweathermap.org/img/wn/${weatherIcon}@2x.png`}
+                alt="weather icon"
+              />
+            )}
+            {output1 && <p className="output">{output1}</p>}
+          </div>
         )}
-      </div>
 
-      <div id="historical">
         {historicalData && (
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Max Temp</th>
-                <th>Min Temp</th>
-                <th>Rain</th>
-                <th>Shower</th>
-                <th>Snow</th>
-              </tr>
-            </thead>
-            <tbody>
-              {historicalData.map((row, i) => (
-                <tr key={i}>
-                  <td>{row.date}</td>
-                  <td>{row.maxTemp}°C</td>
-                  <td>{row.minTemp}°C</td>
-                  <td>{row.rain}mm</td>
-                  <td>{row.shower}mm</td>
-                  <td>{row.snow}cm</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="card">
+            <h2>7-Day History</h2>
+            <div className="table-wrap">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Max</th>
+                    <th>Min</th>
+                    <th>Rain</th>
+                    <th>Shower</th>
+                    <th>Snow</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {historicalData.map((row, i) => (
+                    <tr key={i}>
+                      <td>{row.date}</td>
+                      <td>{row.maxTemp}°C</td>
+                      <td>{row.minTemp}°C</td>
+                      <td>{row.rain}mm</td>
+                      <td>{row.shower}mm</td>
+                      <td>{row.snow}cm</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         )}
-      </div>
+      </main>
 
-      <footer>
-        <p>powered by OpenWeather</p>
-      </footer>
+      <footer className="footer">powered by OpenWeather</footer>
     </div>
   )
 }
