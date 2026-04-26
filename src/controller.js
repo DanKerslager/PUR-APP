@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { getLocation, getWeather, fetchHistoricalData, loadFavorites, saveFavorites } from './model'
 
 export function useWeatherApp(isAuthenticated, user) {
-  const [location, setLocation] = useState('')
+  const [location, setLocation] = useState(() => localStorage.getItem('lastLocation') || '')
   const [output1, setOutput1] = useState('')
   const [weatherIcon, setWeatherIcon] = useState(null)
   const [historicalData, setHistoricalData] = useState(null)
@@ -22,6 +22,7 @@ export function useWeatherApp(isAuthenticated, user) {
   }, [isAuthenticated, user])
 
   const handleFind = async () => {
+    localStorage.setItem('lastLocation', location)
     setOutput1('You entered: ' + location)
     try {
       const coords = await getLocation(location)
