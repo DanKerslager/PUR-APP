@@ -8,8 +8,7 @@ const GEO_API = 'https://api.openweathermap.org/geo/1.0/direct?q='
 const HISTORY_API = 'https://api.open-meteo.com/v1/forecast?'
 const HISTORY_API_SET = '&daily=temperature_2m_max,temperature_2m_min,rain_sum,showers_sum,snowfall_sum&timezone=auto&'
 
-const AUTH0_DOMAIN = 'dev-cz1xfrqlz4gbz633.us.auth0.com'
-const MANAGE_TOKEN = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkJZWVVLeWtrVkNIbThETGNfUi1fSCJ9.eyJpc3MiOiJodHRwczovL2Rldi1jejF4ZnJxbHo0Z2J6NjMzLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiJISkpTQ2xOZHBPMDV2Uncwb1lYYlNpOWVDdmtLTVVGZEBjbGllbnRzIiwiYXVkIjoiaHR0cHM6Ly9kZXYtY3oxeGZycWx6NGdiejYzMy51cy5hdXRoMC5jb20vYXBpL3YyLyIsImlhdCI6MTcxNjEzNjQ2MiwiZXhwIjoxNzE2MjIyODYyLCJzY29wZSI6InJlYWQ6dXNlcnMgdXBkYXRlOnVzZXJzIGRlbGV0ZTp1c2VycyBjcmVhdGU6dXNlcnMiLCJndHkiOiJjbGllbnQtY3JlZGVudGlhbHMiLCJhenAiOiJISkpTQ2xOZHBPMDV2Uncwb1lYYlNpOWVDdmtLTVVGZCJ9.LMzUhKlzc54fXRWe-8A01zffUqXMeUH4knyl-AGxPXz01YK4bt_XJEBZxDK0xcgQSSFrBITfObFX3XbowU8UHnJ3wgMuV6DUGjq5VRNYkc-reqau7xg5rM6FBAbZjiQVdezvlUJGPBC8E3vGqyUcQfOjNH2MRUELTG6FGP4dtUn8XgBIpX3y_bFQL9T4jkVnqJJqVhP0JKmc8AKON9TYhp3qlG6NbbRgLRlAxL10e-dRYpL0E3yPU_LIh1Dj6pxhYkrRGj8PsCBV1HoXTZg-FVL1_kkbp7I0kZE4KymdxO9qLBpvR8Ls549GCtBUe9KvAOlyy13QXSGKzdaWWMBYQA'
+const AUTH0_PROXY = '/.netlify/functions/auth0-proxy'
 
 async function getLocation(location) {
   const res = await fetch(GEO_API + location + '&limit=1' + APPID)
@@ -59,8 +58,10 @@ export default function App() {
 
   useEffect(() => {
     if (isAuthenticated && user) {
-      fetch(`https://${AUTH0_DOMAIN}/api/v2/users/${user.sub}`, {
-        headers: { Authorization: `Bearer ${MANAGE_TOKEN}` },
+      fetch(AUTH0_PROXY, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.sub, action: 'get' }),
       })
         .then(r => r.json())
         .then(data => {
@@ -96,13 +97,10 @@ export default function App() {
     setFavorites(newFavs)
     setMetadata(newMeta)
     try {
-      await fetch(`https://${AUTH0_DOMAIN}/api/v2/users/${user.sub}`, {
-        method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${MANAGE_TOKEN}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ user_metadata: newMeta }),
+      await fetch(AUTH0_PROXY, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.sub, action: 'patch', data: { user_metadata: newMeta } }),
       })
     } catch (err) {
       console.error(err)
