@@ -120,10 +120,7 @@ body {
   border: 1px solid #e2e8f0;
   border-radius: 10px;
   overflow: hidden;
-  background:
-    radial-gradient(circle at 15% 30%, #dbeafe 0%, #bfdbfe 40%, transparent 41%),
-    radial-gradient(circle at 70% 70%, #dbeafe 0%, #bfdbfe 35%, transparent 36%),
-    linear-gradient(180deg, #eff6ff 0%, #f8fafc 100%);
+  background: linear-gradient(180deg, #eff6ff 0%, #f8fafc 100%);
 }
 
 .favorites-map-empty {
@@ -137,14 +134,40 @@ body {
 }
 
 .fav-location {
-  position: absolute;
   width: 10px;
   height: 10px;
   border-radius: 999px;
   background: #ef4444;
   border: 2px solid #fff;
   box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.45);
+}
+
+.fav-location-btn {
+  position: absolute;
   transform: translate(-50%, -50%);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fav-location-label {
+  font-size: 12px;
+  line-height: 1;
+  color: #1e293b;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  padding: 3px 7px;
+  white-space: nowrap;
+}
+
+.fav-location-btn:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
 }
 
 /* ── Weather card ── */

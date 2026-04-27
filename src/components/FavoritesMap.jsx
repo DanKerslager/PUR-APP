@@ -1,10 +1,11 @@
-export default function FavoritesMap({ favoritesLocations }) {
-  const points = favoritesLocations
-    .map((loc) => {
+export default function FavoritesMap({ favorites = [], favoritesLocations = [], onSelect }) {
+  const points = favorites
+    .map((name, index) => {
+      const loc = favoritesLocations[index]
       const lat = Number(loc?.[0])
       const lon = Number(loc?.[1])
       if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null
-      return { lat, lon }
+      return { name, lat, lon }
     })
     .filter(Boolean)
 
@@ -42,12 +43,17 @@ export default function FavoritesMap({ favoritesLocations }) {
           const top = ((viewMaxLat - point.lat) / viewLatSpan) * 100
 
           return (
-            <div
+            <button
               key={i}
-              className="fav-location"
+              type="button"
+              className="fav-location-btn"
               style={{ left: `${left}%`, top: `${top}%` }}
-              title={`${point.lat.toFixed(2)}, ${point.lon.toFixed(2)}`}
-            />
+              title={`${point.name}: ${point.lat.toFixed(2)}, ${point.lon.toFixed(2)}`}
+              onClick={() => onSelect?.(point.name)}
+            >
+              <span className="fav-location" />
+              <span className="fav-location-label">{point.name}</span>
+            </button>
           )
         })}
       </div>

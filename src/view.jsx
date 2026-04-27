@@ -42,6 +42,7 @@ export default function WeatherView({
           <FavoritesMap
             favorites={favorites}
             favoritesLocations={favoritesLocations}
+            onSelect={setLocation}
           />
         )}
 
