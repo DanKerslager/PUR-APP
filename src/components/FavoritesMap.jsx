@@ -1,10 +1,26 @@
-export default function FavoritesMap({ favorites, favoritesLocations }) {
+export default function FavoritesMap({ favoritesLocations }) {
   return (
-    <div className="favorites-map">
+    <div className="card favorites-map">
       <h2>Oblíbené lokace</h2>
-      {favoritesLocations.map((loc, i) => (
-        <div key={i} className="fav-location" style={{ left: `${loc[1] + 180}%`, top: `${90 - (loc[0] + 90)}%` }} />
-      ))}
+      <div className="favorites-map-surface">
+        {favoritesLocations.map((loc, i) => {
+          const lat = Number(loc?.[0])
+          const lon = Number(loc?.[1])
+          if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null
+
+          const left = ((lon + 180) / 360) * 100
+          const top = ((90 - lat) / 180) * 100
+
+          return (
+            <div
+              key={i}
+              className="fav-location"
+              style={{ left: `${left}%`, top: `${top}%` }}
+              title={`${lat.toFixed(2)}, ${lon.toFixed(2)}`}
+            />
+          )
+        })}
+      </div>
     </div>
-    )
+  )
 }
