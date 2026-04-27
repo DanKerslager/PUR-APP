@@ -14,10 +14,11 @@ export function useWeatherApp(isAuthenticated, user) {
   useEffect(() => {
     if (isAuthenticated && user) {
       loadFavorites(user.sub)
-        .then(meta => {
+        .then(async (meta) => {
           setMetadata(meta)
           setFavorites(meta.favorite_locations)
-          setFavoritesLocations(getLocation(meta.favorite_locations))
+          const coords = await Promise.all(meta.favorite_locations.map((fav) => getLocation(fav)))
+          setFavoritesLocations(coords)
         })
         .catch(console.error)
     }
