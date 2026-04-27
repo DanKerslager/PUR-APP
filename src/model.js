@@ -7,7 +7,11 @@ const AUTH0_PROXY = '/.netlify/functions/auth0-proxy'
 
 export async function getLocation(location) {
   const res = await fetch(GEO_API + location + '&limit=1' + APPID)
+  if (!res.ok) throw new Error('Failed to resolve location')
   const data = await res.json()
+  if (!Array.isArray(data) || data.length === 0) {
+    throw new Error('Location not found')
+  }
   return [data[0].lat, data[0].lon]
 }
 

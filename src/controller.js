@@ -15,27 +15,45 @@ export function useWeatherApp(isAuthenticated, user) {
     if (isAuthenticated && user) {
       loadFavorites(user.sub)
         .then(async (meta) => {
-          setMetadata(meta)
-          setFavorites(meta.favorite_locations)
-          const coords = await Promise.all(meta.favorite_locations.map((fav) => getLocation(fav)))
-          setFavoritesLocations(coords)
+          const settled = await Promise.allSettled(
+            meta.favorite_locations.map(async (fav) => {
+              const coords = await getLocation(fav)
+              return { fav, coords }
+            })
+          )
+
+          const valid = settled
+            .filter((entry) => entry.status === 'fulfilled')
+            .map((entry) => entry.value)
+
+          const validFavorites = valid.map((entry) => entry.fav)
+          const validCoords = valid.map((entry) => entry.coords)
+
+          setMetadata({ ...meta, favorite_locations: validFavorites })
+          setFavorites(validFavorites)
+          setFavoritesLocations(validCoords)
         })
         .catch(console.error)
     }
   }, [isAuthenticated, user])
 
   const handleFind = async () => {
-    localStorage.setItem('lastLocation', location)
-    setOutput1('You entered: ' + location)
+    const loc = location.trim()
+    if (!loc) return
+
     try {
-      const coords = await getLocation(location)
+      const coords = await getLocation(loc)
       const weatherData = await getWeather(coords)
+      localStorage.setItem('lastLocation', loc)
+      setOutput1('You entered: ' + loc)
       setWeatherIcon(weatherData.weather[0].icon)
       if (isAuthenticated) {
         const hist = await fetchHistoricalData(coords)
         setHistoricalData(hist)
       }
     } catch (err) {
+      setOutput1('Location not found')
+      setHistoricalData(null)
       console.error(err)
     }
   }
@@ -43,13 +61,18 @@ export function useWeatherApp(isAuthenticated, user) {
   const handleAddFavorite = async () => {
     const loc = location.trim()
     if (!loc || favorites.includes(loc)) return
-    const newFavs = [...favorites, loc]
-    const newMeta = { ...metadata, favorite_locations: newFavs }
-    setFavorites(newFavs)
-    setMetadata(newMeta)
+
     try {
+      const coords = await getLocation(loc)
+      const newFavs = [...favorites, loc]
+      const newMeta = { ...metadata, favorite_locations: newFavs }
+
+      setFavorites(newFavs)
+      setFavoritesLocations((prev) => [...prev, coords])
+      setMetadata(newMeta)
       await saveFavorites(user.sub, newMeta)
     } catch (err) {
+      setOutput1('Location not found')
       console.error(err)
     }
   }
