@@ -7,6 +7,7 @@ export function useWeatherApp(isAuthenticated, user) {
   const [weatherIcon, setWeatherIcon] = useState(null)
   const [historicalData, setHistoricalData] = useState(null)
   const [favorites, setFavorites] = useState([])
+  const [favoritesLocations, setFavoritesLocations] = useState([])
   const [metadata, setMetadata] = useState({ favorite_locations: [] })
   const [showForm, setShowForm] = useState(false)
 
@@ -16,6 +17,7 @@ export function useWeatherApp(isAuthenticated, user) {
         .then(meta => {
           setMetadata(meta)
           setFavorites(meta.favorite_locations)
+          setFavoritesLocations(getLocation(meta.favorite_locations))
         })
         .catch(console.error)
     }
@@ -60,5 +62,6 @@ export function useWeatherApp(isAuthenticated, user) {
     showForm, setShowForm,
     handleFind,
     handleAddFavorite,
+    favoritesLocations,
   }
 }

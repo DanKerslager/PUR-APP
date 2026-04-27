@@ -8,7 +8,7 @@ import HistoricalTable from './components/HistoricalTable'
 export default function WeatherView({
   isAuthenticated, user, onLogin, onLogout,
   location, setLocation, output1, weatherIcon, historicalData,
-  favorites, showForm, setShowForm, handleFind, handleAddFavorite,
+  favorites, favoritesLocations, showForm, setShowForm, handleFind, handleAddFavorite,
 }) {
   return (
     <div className="page">
@@ -34,6 +34,13 @@ export default function WeatherView({
             favorites={favorites}
             onSelect={setLocation}
             onAdd={handleAddFavorite}
+          />
+        )}
+
+        {isAuthenticated && (
+          <FavoritesMap
+            favorites={favorites}
+            favoritesLocations={favoritesLocations}
           />
         )}
 
