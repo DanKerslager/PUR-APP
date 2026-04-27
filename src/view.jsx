@@ -2,6 +2,7 @@ import Topbar from './components/Topbar'
 import RegisterModal from './components/RegisterModal'
 import SearchBar from './components/SearchBar'
 import FavoritesBar from './components/FavoritesBar'
+import FavoritesMap from './components/FavoritesMap'
 import WeatherResult from './components/WeatherResult'
 import HistoricalTable from './components/HistoricalTable'
 
