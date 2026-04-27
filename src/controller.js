@@ -48,8 +48,12 @@ export function useWeatherApp(isAuthenticated, user) {
       setOutput1('You entered: ' + loc)
       setWeatherIcon(weatherData.weather[0].icon)
       if (isAuthenticated) {
-        const hist = await fetchHistoricalData(coords)
-        setHistoricalData(hist)
+        fetchHistoricalData(coords)
+          .then((hist) => setHistoricalData(hist))
+          .catch((historyError) => {
+            setHistoricalData([])
+            console.error(historyError)
+          })
       }
     } catch (err) {
       setOutput1('Location not found')

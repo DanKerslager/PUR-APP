@@ -22,26 +22,37 @@ export async function getWeather(coords) {
 }
 
 export async function fetchHistoricalData(coords) {
-  const promises = []
+  const requests = []
   for (let i = 1; i <= 7; i++) {
     const date = new Date()
     date.setDate(date.getDate() - i)
     const d = date.toISOString().split('T')[0]
     const url = `${HISTORY_API}latitude=${coords[0]}&longitude=${coords[1]}${HISTORY_API_SET}start_date=${d}&end_date=${d}`
-    promises.push(fetch(url).then(r => r.json()))
+    requests.push({
+      date: d,
+      promise: fetch(url)
+        .then(r => (r.ok ? r.json() : null))
+        .catch(() => null),
+    })
   }
-  const results = await Promise.all(promises)
-  return results.map(data => {
-    const { time, temperature_2m_max, temperature_2m_min, rain_sum, showers_sum, snowfall_sum } = data.daily
-    return {
-      date: time,
-      maxTemp: parseInt(temperature_2m_max),
-      minTemp: parseInt(temperature_2m_min),
-      rain: parseInt(rain_sum),
-      shower: parseInt(showers_sum),
-      snow: parseInt(snowfall_sum),
-    }
-  })
+  const results = await Promise.all(requests.map((req) => req.promise))
+  return results
+    .map((data, index) => {
+      if (!data || !data.daily) return null
+      const { time, temperature_2m_max, temperature_2m_min, rain_sum, showers_sum, snowfall_sum } = data.daily
+      if (!time || !temperature_2m_max || !temperature_2m_min) return null
+
+      const fallbackDate = requests[index].date
+      return {
+        date: time[0] || fallbackDate,
+        maxTemp: Number(temperature_2m_max[0] ?? 0),
+        minTemp: Number(temperature_2m_min[0] ?? 0),
+        rain: Number(rain_sum?.[0] ?? 0),
+        shower: Number(showers_sum?.[0] ?? 0),
+        snow: Number(snowfall_sum?.[0] ?? 0),
+      }
+    })
+    .filter(Boolean)
 }
 
 export async function loadFavorites(userId) {
