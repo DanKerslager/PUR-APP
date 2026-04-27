@@ -126,6 +126,16 @@ body {
     linear-gradient(180deg, #eff6ff 0%, #f8fafc 100%);
 }
 
+.favorites-map-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  font-size: 14px;
+}
+
 .fav-location {
   position: absolute;
   width: 10px;
